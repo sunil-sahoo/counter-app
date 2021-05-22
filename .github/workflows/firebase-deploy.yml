@@ -1,0 +1,36 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches:    
+      # Push events to branches matching refs/heads/releases/10
+      - 'master'
+jobs:
+ 
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+     
+      - name: Branch name
+        run: echo running on branch ${GITHUB_REF##*/}
+
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: 14.x
+      - run: npm install
+      - run: CI=false npm run build
+
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          
